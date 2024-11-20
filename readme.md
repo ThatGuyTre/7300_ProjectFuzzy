@@ -9,16 +9,20 @@ Elegant solution is using Hamming Distance and Levenshtein Distances to intellig
 An example of inverse indexing is this:
 
 ### Dataset:
+```
 Tweet 1: "apple orange banana"
 Tweet 2: "banana apple apple"
 Tweet 3: "grape banana orange"
+```
 
 ### Example Inputs and Outputs:
+```
 {
   "apple": [1, 2, 2],   # "apple" appears once in Document 1 and twice in Document 2
   "orange": [1, 3],     # "orange" appears in Documents 1 and 3
   "banana": [1, 2, 3],  # "banana" appears in all three documents
   "grape": [3]          # "grape" appears only in Document 3
 }
+```
 
 The main goal of searching will be parsing all these data entries and accumulating inverse indices of the search term. The result of the searches will be an array of all tweets where the string appears. In terms of index size versus query efficiency, a longer query will result in a smaller index.
