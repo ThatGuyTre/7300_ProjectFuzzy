@@ -27,5 +27,17 @@ Tweet 3: "grape banana orange"
   "grape": [3]          # "grape" appears only in Document 3
 }
 ```
+### Example FUZZY Inputs and Outputs:
+### Dataset:
+```
+Tweet 1: "appel orange banana"
+```
+
+### Example Inputs and Outputs:
+```
+{
+  "apple": [1],   # "appel" appears in Document 1 which is a fuzzy version of "apple"
+}
+```
 
 The main goal of searching will be parsing all these data entries and accumulating inverse indices of the search term. The result of the searches will be an array of all tweets where the string appears. In terms of index size versus query efficiency, a longer query will result in a smaller index.
