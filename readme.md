@@ -1,10 +1,13 @@
 Dataset taken from:
 https://www.kaggle.com/datasets/kazanova/sentiment140
 
-Implementing fuzzy search to search the dataset.
+## Implementing fuzzy search to search the dataset
 We will be using multiple algorithm implementations for this fuzzy search.
+
 Brute force algorithm is simply permuting and searching multiple times based on the search term given. This is expected to perform the worst.
+
 Elegant solution is using Hamming Distance and Levenshtein Distances to intelligently spend resources on searches while parsing the dataset. These are expected to perform better.
+
 
 An example of inverse indexing is this:
 
