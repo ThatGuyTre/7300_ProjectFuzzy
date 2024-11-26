@@ -1,6 +1,26 @@
 #include "fuzzy.h"
+#include "sentence_search.h"
 
 #define line_count 1600000
+
+int* findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuzzyFunction)(const char *, const char *)) {
+	int *tweetIndices = (int *)malloc(line_count * sizeof(int));
+	if (tweetIndices == NULL) {
+		perror("Memory allocation failed for tweetIndices");
+		return NULL;
+	}
+
+	int count = 0;
+	for (int i = 0; i < line_count; i++) {
+		if (sentenceSearch(tweets[i], searchTerm, fuzzyFunction) > 0) {
+			tweetIndices[count] = i;
+			count++;
+		}
+	}
+
+	tweetIndices = (int *)realloc(tweetIndices, count * sizeof(int));
+	return tweetIndices;
+}
 
 void loadTweets(char **tweets){
 
@@ -38,6 +58,17 @@ int main() {
     for (int i = 0; i < 10; i++) {
         printf("%s", tweets[i]);
     }
+
+	char* term = "hello";
+
+	printf("Searching for tweets containing the term \"%s\"...\n", term);
+
+	int* indices = findTweetsWithTerm(tweets, term, levenFuzzy);
+
+	printf("Tweets containing the term \"%s\":\n", term);
+	for (int i = 0; i < 10; i++) {
+		printf("%d: %s", i, tweets[indices[i]]);
+	}
 
 	const char *str1 = "kitten";
 	const char *str2 = "sitting";
