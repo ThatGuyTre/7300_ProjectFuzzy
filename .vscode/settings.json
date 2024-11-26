@@ -1,6 +1,8 @@
 {
 	"files.associations": {
 		"math.h": "c",
-		"fuzzy.h": "c"
+		"fuzzy.h": "c",
+		"stdio.h": "c",
+		"string.h": "c"
 	}
 }
