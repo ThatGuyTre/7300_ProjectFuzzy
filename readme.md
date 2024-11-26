@@ -50,7 +50,7 @@ The main goal of searching will be parsing all these data entries and accumulati
 2) Run the `parsecsv.py` script. It may take a while for it to finish.
 3) Then you will have `tweets.csv`. This is the file that's needed to process and test the data on.
 4) Finally, make the test executable with `make`
-5) You can run `fuzzy_test` to run the tests!
+5) You can run `fuzzy_test <searchterm>` to run the tests!
 
 ## Running the project
 `fuzzy.c` includes all the fuzzy searching files.
