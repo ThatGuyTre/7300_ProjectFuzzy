@@ -87,15 +87,15 @@ int main(int argc, char *argv[]) {
 	// (Uncomment to print the tweet indices or tweet contents)
 	
 	printf("Tweets containing the term \"%s\":\n", term);
-	for (int i = 0; i < levenResult.count; i++) {
-		printf("Levenshtein match at index %d: %s\n", levenResult.indices[i], tweets[levenResult.indices[i]]);
-	}
-	for (int i = 0; i < hammingResult.count; i++) {
-		printf("Hamming match at index %d: %s\n", hammingResult.indices[i], tweets[hammingResult.indices[i]]);
-	}
-	for (int i = 0; i < bruteForceResult.count; i++) {
-		printf("Brute-force match at index %d: %s\n", bruteForceResult.indices[i], tweets[bruteForceResult.indices[i]]);
-	}
+	// for (int i = 0; i < levenResult.count; i++) {
+	// 	printf("Levenshtein match at index %d: %s\n", levenResult.indices[i], tweets[levenResult.indices[i]]);
+	// }
+	// for (int i = 0; i < hammingResult.count; i++) {
+	// 	printf("Hamming match at index %d: %s\n", hammingResult.indices[i], tweets[hammingResult.indices[i]]);
+	// }
+	// for (int i = 0; i < bruteForceResult.count; i++) {
+	// 	printf("Brute-force match at index %d: %s\n", bruteForceResult.indices[i], tweets[bruteForceResult.indices[i]]);
+	// }
 
 	// Free the allocated memory from tweets array
 	for (int i = 0; i < line_count; i++) {
