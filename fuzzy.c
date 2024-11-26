@@ -1,5 +1,7 @@
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include "fuzzy.h"
-#include "math.h"
 
 // HammingFuzzy and LevenFuzzy functions adapted from https://github.com/tkarabela/bigpython/blob/master/003--fuzzy-text-search/fuzzy-text-search.ipynb
 
@@ -24,8 +26,44 @@ int hammingFuzzy(const char *pattern, const char *text) {
 }
 
 int bruteForceFuzzy(const char *pattern, const char *text) {
-	// Placeholder for brute-force fuzzy search implementation
-	printf("Brute force fuzzy search is not yet implemented.\n");
+	int pattern_len = strlen(pattern);
+	int text_len = strlen(text);
+
+	if(pattern_len > text_len) {
+		// Pattern must be shorter than text
+		return -1;
+	}
+
+	// Create an array of all possible 2-letter swaps
+    char swapped_patterns[pattern_len * pattern_len][pattern_len + 1]; // Store swapped strings
+    int swap_count = 0;
+
+    for (int i = 0; i < pattern_len; i++) {
+        for (int j = i + 1; j < pattern_len; j++) {
+            strcpy(swapped_patterns[swap_count], pattern);  // Copy the whole pattern
+            // Swap the characters at indices i and j
+            char temp = swapped_patterns[swap_count][i];
+            swapped_patterns[swap_count][i] = swapped_patterns[swap_count][j];
+            swapped_patterns[swap_count][j] = temp;
+            swap_count++;
+        }
+    }
+
+	// Compare each shifted pattern with the text
+	for(int i = 0; i < text_len - pattern_len + 1; i++) {
+		for(int j = 0; j < pattern_len; j++) {
+			if(text[i + j] != swapped_patterns[j][j]) {
+				break;
+			}
+			if(j == pattern_len - 1) {
+				return i;
+			}
+		}
+	}
+
+	// If you still can't find a match, return -1
+	// but in the future we may want to search substrings of the swapped_patterns array
+	
 	return -1;
 }
 
