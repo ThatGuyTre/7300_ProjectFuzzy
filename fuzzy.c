@@ -1,14 +1,16 @@
 #include "fuzzy.h"
 #include "math.h"
 
-void hammingFuzzy(const char *pattern, const char *text) {
+int hammingFuzzy(const char *pattern, const char *text) {
     // Placeholder for Hamming distance implementation
     printf("Hamming fuzzy search is not yet implemented.\n");
+	return -1;
 }
 
-void bruteForceFuzzy(const char *pattern, const char *text) {
+int bruteForceFuzzy(const char *pattern, const char *text) {
     // Placeholder for brute-force fuzzy search implementation
     printf("Brute force fuzzy search is not yet implemented.\n");
+	return -1;
 }
 
 int levenFuzzy(const char *s1, const char *s2) {

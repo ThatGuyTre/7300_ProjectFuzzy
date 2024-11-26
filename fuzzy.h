@@ -6,10 +6,10 @@
 #include <stdlib.h>
 
 // Placeholder for hamming distance-based fuzzy search
-void hammingFuzzy(const char *pattern, const char *text);
+int hammingFuzzy(const char *pattern, const char *text);
 
 // Placeholder for brute-force fuzzy search
-void bruteForceFuzzy(const char *pattern, const char *text);
+int bruteForceFuzzy(const char *pattern, const char *text);
 
 // Levenshtein distance-based fuzzy search
 int levenFuzzy(const char *s1, const char *s2);
