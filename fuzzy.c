@@ -1,89 +1,143 @@
-#include <math.h>
+#include "fuzzy.h"
 #include <stdio.h>
 #include <string.h>
-#include "fuzzy.h"
+#include <stdlib.h>
+#include <math.h>
 
-// HammingFuzzy and LevenFuzzy functions adapted from https://github.com/tkarabela/bigpython/blob/master/003--fuzzy-text-search/fuzzy-text-search.ipynb
+char* custom_strdup(const char* s) {
+    size_t len = strlen(s) + 1;
+    char* copy = malloc(len);
+    if (copy != NULL) {
+        strcpy(copy, s);
+    }
+    return copy;
+}
 
-int hammingFuzzy(const char *pattern, const char *text) {
-	size_t pattern_len = strlen(pattern);
-	size_t text_len = strlen(text);
+int bruteForceFuzzy(const char *pattern, const char *text)
+{
+	size_t patternLen = strlen(pattern);
+	size_t textLen = strlen(text);
 
-	if (pattern_len != text_len) {
-		return -1; // Lengths are not equal, return error
+	for (size_t i = 0; i <= textLen - patternLen; i++)
+	{
+		size_t j = 0;
+
+		// Check for direct match
+		while (j < patternLen && pattern[j] == text[i + j])
+		{
+			j++;
+		}
+
+		if (j == patternLen)
+		{
+			return i; // Match found at position i
+		}
+
+		// Use a mutable copy of the pattern
+		char *clonedPattern = custom_strdup(pattern);
+		if (clonedPattern == NULL)
+		{
+			perror("Failed to duplicate pattern");
+			return -1;
+		}
+
+		// Try swapping adjacent characters in the cloned pattern
+		for (size_t swapIdx = 0; swapIdx < patternLen - 1; swapIdx++)
+		{
+			if (clonedPattern[swapIdx] != text[i + swapIdx])
+			{
+				// Swap character with the next one
+				char temp = clonedPattern[swapIdx];
+				clonedPattern[swapIdx] = clonedPattern[swapIdx + 1];
+				clonedPattern[swapIdx + 1] = temp;
+
+				j = 0;
+				while (j < patternLen && clonedPattern[j] == text[i + j])
+				{
+					j++;
+				}
+
+				// Restore the original order in the cloned pattern
+				clonedPattern[swapIdx + 1] = clonedPattern[swapIdx];
+				clonedPattern[swapIdx] = temp;
+
+				if (j == patternLen)
+				{
+					free(clonedPattern); // Free the duplicated string
+					return i;			 // Match found after swap
+				}
+			}
+		}
+
+		free(clonedPattern); // Free the duplicated string after use
+	}
+	return -1; // No match found
+}
+
+int hammingFuzzy(const char *pattern, const char *text)
+{
+	size_t patternLen = strlen(pattern);
+	size_t textLen = strlen(text);
+
+	if (patternLen != textLen)
+	{
+		return -1; // Length mismatch
 	}
 
 	int distance = 0;
-
-	// Calculate the Hamming distance
-	for (size_t i = 0; i < pattern_len; i++) {
-		if (pattern[i] != text[i]) {
+	for (size_t i = 0; i < patternLen; i++)
+	{
+		if (pattern[i] != text[i])
+		{
 			distance++;
 		}
 	}
-
 	return distance;
 }
 
-int bruteForceFuzzy(const char *pattern, const char *text) {
-	int pattern_len = strlen(pattern);
-	int text_len = strlen(text);
+int levenFuzzy(const char *pattern, const char *text)
+{
+	int patternLen = strlen(pattern);
+	int textLen = strlen(text);
 
-	if(pattern_len > text_len) {
-		// Pattern must be shorter than text
-		return -1;
+	// Dynamically allocate the 2D array
+	int **dp = (int **)malloc((patternLen + 1) * sizeof(int *));
+	for (int i = 0; i <= patternLen; i++)
+	{
+		dp[i] = (int *)malloc((textLen + 1) * sizeof(int));
 	}
 
-	// Create an array of all possible 2-letter swaps
-    char swapped_patterns[pattern_len * pattern_len][pattern_len + 1]; // Store swapped strings
-    int swap_count = 0;
-
-    for (int i = 0; i < pattern_len; i++) {
-        for (int j = i + 1; j < pattern_len; j++) {
-            strcpy(swapped_patterns[swap_count], pattern);  // Copy the whole pattern
-            // Swap the characters at indices i and j
-            char temp = swapped_patterns[swap_count][i];
-            swapped_patterns[swap_count][i] = swapped_patterns[swap_count][j];
-            swapped_patterns[swap_count][j] = temp;
-            swap_count++;
-        }
-    }
-
-	// Compare each shifted pattern with the text
-	for(int i = 0; i < text_len - pattern_len + 1; i++) {
-		for(int j = 0; j < pattern_len; j++) {
-			if(text[i + j] != swapped_patterns[j][j]) {
-				break;
-			}
-			if(j == pattern_len - 1) {
-				return i;
-			}
-		}
-	}
-
-	// If you still can't find a match, return -1
-	// but in the future we may want to search substrings of the swapped_patterns array
-	
-	return -1;
-}
-
-int levenFuzzy(const char *s1, const char *s2) {
-	int len1 = strlen(s1);
-	int len2 = strlen(s2);
-	int dp[len1 + 1][len2 + 1];
-
-	for (int i = 0; i <= len1; i++)
+	// Initialize the base cases
+	for (int i = 0; i <= patternLen; i++)
+	{
 		dp[i][0] = i;
-	for (int j = 0; j <= len2; j++)
+	}
+	for (int j = 0; j <= textLen; j++)
+	{
 		dp[0][j] = j;
+	}
 
-	for (int i = 1; i <= len1; i++) {
-		for (int j = 1; j <= len2; j++) {
-			int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
-			dp[i][j] = fmin(dp[i - 1][j] + 1,       // Deletion
-						fmin(dp[i][j - 1] + 1,      // Insertion
-							dp[i - 1][j - 1] + cost)); // Substitution
+	// Fill the dp array using the Levenshtein algorithm
+	for (int i = 1; i <= patternLen; i++)
+	{
+		for (int j = 1; j <= textLen; j++)
+		{
+			int cost = (pattern[i - 1] == text[j - 1]) ? 0 : 1;
+			dp[i][j] = fmin(dp[i - 1][j] + 1,				// Deletion
+							fmin(dp[i][j - 1] + 1,			// Insertion
+								 dp[i - 1][j - 1] + cost)); // Substitution
 		}
 	}
-	return dp[len1][len2];
+
+	// Store the result
+	int result = dp[patternLen][textLen];
+
+	// Free the allocated memory
+	for (int i = 0; i <= patternLen; i++)
+	{
+		free(dp[i]);
+	}
+	free(dp);
+
+	return result;
 }
