@@ -1,6 +1,8 @@
 #include "fuzzy.h"
 #include "math.h"
 
+// HammingFuzzy and LevenFuzzy functions adapted from https://github.com/tkarabela/bigpython/blob/master/003--fuzzy-text-search/fuzzy-text-search.ipynb
+
 int hammingFuzzy(const char *pattern, const char *text) {
 	size_t pattern_len = strlen(pattern);
 	size_t text_len = strlen(text);

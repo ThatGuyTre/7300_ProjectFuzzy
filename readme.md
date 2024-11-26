@@ -42,6 +42,13 @@ Tweet 1: "appel orange banana"
 
 The main goal of searching will be parsing all these data entries and accumulating inverse indices of the search term. The result of the searches will be an array of all tweets where the string appears. In terms of index size versus query efficiency, a longer query will result in a smaller index.
 
+## Setting up the environment
+1) Extract the training data into the __root__ folder!
+2) Run the `parsecsv.py` script. It may take a while for it to finish.
+3) Then you will have `tweets.csv`. This is the file that's needed to process and test the data on.
+4) Finally, make the test executable with `make`
+5) You can run `fuzzy_test` to run the tests!
+
 ## Running the project
 `fuzzy.c` includes all the fuzzy searching files.
 `test.c` includes the testing functionality.
