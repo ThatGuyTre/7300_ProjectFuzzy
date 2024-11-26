@@ -1,51 +1,143 @@
 #include "fuzzy.h"
-#include "math.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
 
-// HammingFuzzy and LevenFuzzy functions adapted from https://github.com/tkarabela/bigpython/blob/master/003--fuzzy-text-search/fuzzy-text-search.ipynb
+char* custom_strdup(const char* s) {
+    size_t len = strlen(s) + 1;
+    char* copy = malloc(len);
+    if (copy != NULL) {
+        strcpy(copy, s);
+    }
+    return copy;
+}
 
-int hammingFuzzy(const char *pattern, const char *text) {
-	size_t pattern_len = strlen(pattern);
-	size_t text_len = strlen(text);
+int bruteForceFuzzy(const char *pattern, const char *text)
+{
+	size_t patternLen = strlen(pattern);
+	size_t textLen = strlen(text);
 
-	if (pattern_len != text_len) {
-		return -1; // Lengths are not equal, return error
+	for (size_t i = 0; i <= textLen - patternLen; i++)
+	{
+		size_t j = 0;
+
+		// Check for direct match
+		while (j < patternLen && pattern[j] == text[i + j])
+		{
+			j++;
+		}
+
+		if (j == patternLen)
+		{
+			return i; // Match found at position i
+		}
+
+		// Use a mutable copy of the pattern
+		char *clonedPattern = custom_strdup(pattern);
+		if (clonedPattern == NULL)
+		{
+			perror("Failed to duplicate pattern");
+			return -1;
+		}
+
+		// Try swapping adjacent characters in the cloned pattern
+		for (size_t swapIdx = 0; swapIdx < patternLen - 1; swapIdx++)
+		{
+			if (clonedPattern[swapIdx] != text[i + swapIdx])
+			{
+				// Swap character with the next one
+				char temp = clonedPattern[swapIdx];
+				clonedPattern[swapIdx] = clonedPattern[swapIdx + 1];
+				clonedPattern[swapIdx + 1] = temp;
+
+				j = 0;
+				while (j < patternLen && clonedPattern[j] == text[i + j])
+				{
+					j++;
+				}
+
+				// Restore the original order in the cloned pattern
+				clonedPattern[swapIdx + 1] = clonedPattern[swapIdx];
+				clonedPattern[swapIdx] = temp;
+
+				if (j == patternLen)
+				{
+					free(clonedPattern); // Free the duplicated string
+					return i;			 // Match found after swap
+				}
+			}
+		}
+
+		free(clonedPattern); // Free the duplicated string after use
+	}
+	return -1; // No match found
+}
+
+int hammingFuzzy(const char *pattern, const char *text)
+{
+	size_t patternLen = strlen(pattern);
+	size_t textLen = strlen(text);
+
+	if (patternLen != textLen)
+	{
+		return -1; // Length mismatch
 	}
 
 	int distance = 0;
-
-	// Calculate the Hamming distance
-	for (size_t i = 0; i < pattern_len; i++) {
-		if (pattern[i] != text[i]) {
+	for (size_t i = 0; i < patternLen; i++)
+	{
+		if (pattern[i] != text[i])
+		{
 			distance++;
 		}
 	}
-
 	return distance;
 }
 
-int bruteForceFuzzy(const char *pattern, const char *text) {
-	// Placeholder for brute-force fuzzy search implementation
-	printf("Brute force fuzzy search is not yet implemented.\n");
-	return -1;
-}
+int levenFuzzy(const char *pattern, const char *text)
+{
+	int patternLen = strlen(pattern);
+	int textLen = strlen(text);
 
-int levenFuzzy(const char *s1, const char *s2) {
-	int len1 = strlen(s1);
-	int len2 = strlen(s2);
-	int dp[len1 + 1][len2 + 1];
+	// Dynamically allocate the 2D array
+	int **dp = (int **)malloc((patternLen + 1) * sizeof(int *));
+	for (int i = 0; i <= patternLen; i++)
+	{
+		dp[i] = (int *)malloc((textLen + 1) * sizeof(int));
+	}
 
-	for (int i = 0; i <= len1; i++)
+	// Initialize the base cases
+	for (int i = 0; i <= patternLen; i++)
+	{
 		dp[i][0] = i;
-	for (int j = 0; j <= len2; j++)
+	}
+	for (int j = 0; j <= textLen; j++)
+	{
 		dp[0][j] = j;
+	}
 
-	for (int i = 1; i <= len1; i++) {
-		for (int j = 1; j <= len2; j++) {
-			int cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
-			dp[i][j] = fmin(dp[i - 1][j] + 1,       // Deletion
-						fmin(dp[i][j - 1] + 1,      // Insertion
-							dp[i - 1][j - 1] + cost)); // Substitution
+	// Fill the dp array using the Levenshtein algorithm
+	for (int i = 1; i <= patternLen; i++)
+	{
+		for (int j = 1; j <= textLen; j++)
+		{
+			int cost = (pattern[i - 1] == text[j - 1]) ? 0 : 1;
+			dp[i][j] = fmin(dp[i - 1][j] + 1,				// Deletion
+							fmin(dp[i][j - 1] + 1,			// Insertion
+								 dp[i - 1][j - 1] + cost)); // Substitution
 		}
 	}
-	return dp[len1][len2];
+
+	// Store the result
+	int result = dp[patternLen][textLen];
+
+	// Free the allocated memory
+	for (int i = 0; i <= patternLen; i++)
+	{
+		free(dp[i]);
+	}
+	free(dp);
+
+	return result;
 }

@@ -4,14 +4,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
-// Placeholder for hamming distance-based fuzzy search
-int hammingFuzzy(const char *pattern, const char *text);
+char* custom_strdup(const char* s);
 
-// Placeholder for brute-force fuzzy search
+// Brute-force fuzzy search
 int bruteForceFuzzy(const char *pattern, const char *text);
 
-// Levenshtein distance-based fuzzy search
-int levenFuzzy(const char *s1, const char *s2);
+// Hamming distance-based fuzzy search
+int hammingFuzzy(const char *pattern, const char *text);
 
-#endif // FUZZY_H
+// Levenshtein distance-based fuzzy search
+int levenFuzzy(const char *pattern, const char *text);
+
+#endif

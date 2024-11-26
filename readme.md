@@ -1,6 +1,9 @@
 Dataset taken from:
 https://www.kaggle.com/datasets/kazanova/sentiment140
 
+Algorithms adapted from:
+https://github.com/tkarabela/bigpython/blob/master/003--fuzzy-text-search/fuzzy-text-search.ipynb
+
 ## Implementing fuzzy search to search the dataset
 We will be using multiple algorithm implementations for this fuzzy search.
 
