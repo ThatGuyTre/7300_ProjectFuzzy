@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	clock_t start, end;
-    double levenschteinTime, hammingTime, bruteForceTime;
+	double levenschteinTime, hammingTime, bruteForceTime;
 
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
 	printf("Levenshtein fuzzy search...\n");
