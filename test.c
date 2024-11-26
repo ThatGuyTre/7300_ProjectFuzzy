@@ -21,6 +21,7 @@ SearchResult findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuz
 
 	int count = 0;
 	for (int i = 0; i < line_count; i++) {
+		// If you have found more than 0 matches, store the index in the result
 		if (sentenceSearch(tweets[i], searchTerm, fuzzyFunction) > 0) {
 			result.indices[count] = i;
 			count++;

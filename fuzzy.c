@@ -4,15 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-char* custom_strdup(const char* s) {
-    size_t len = strlen(s) + 1;
-    char* copy = malloc(len);
-    if (copy != NULL) {
-        strcpy(copy, s);
-    }
-    return copy;
-}
-
 int bruteForceFuzzy(const char *pattern, const char *text)
 {
 	size_t patternLen = strlen(pattern);
@@ -39,12 +30,12 @@ int bruteForceFuzzy(const char *pattern, const char *text)
 		}
 
 		// Use a mutable copy of the pattern
-		char *clonedPattern = custom_strdup(pattern);
-		if (clonedPattern == NULL)
-		{
-			perror("Failed to duplicate pattern");
-			return -1;
+		char *clonedPattern = (char *)malloc(strlen(pattern) + 1); // Allocate memory
+		if (clonedPattern == NULL) {
+			printf("Memory allocation failed");
+			return 1; // Handle memory allocation failure
 		}
+		strcpy(clonedPattern, pattern);
 
 		// Try swapping adjacent characters in the cloned pattern
 		for (size_t swapIdx = 0; swapIdx < patternLen - 1; swapIdx++)

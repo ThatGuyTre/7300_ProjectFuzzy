@@ -18,7 +18,13 @@ int sentenceSearch(const char *sentence, const char *searchTerm, int (*fuzzyFunc
     char *token = strtok(sentenceCopy, delimiters);
     while (token != NULL) {
         // Use the passed fuzzy function to compare the search term with the word
-        if (fuzzyFunction(searchTerm, token) == 0) {
+        int threshold = 1; // Threshold for distance-based match
+        if (fuzzyFunction == bruteForceFuzzy) {
+            threshold = 0;
+        }
+        int result = fuzzyFunction(searchTerm, token);
+        if (result <= threshold && result >= 0) { // Do not count -1
+            // printf("Match found: %s and %s\n", searchTerm, token);
             hitCount++;
         }
         token = strtok(NULL, delimiters);
