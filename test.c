@@ -58,13 +58,17 @@ void loadTweets(char **tweets) {
 	fclose(fp);
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 	// Load array for the tweet text
 	char **tweets = (char **)malloc(line_count * sizeof(char *));
 	loadTweets(tweets);
 
 	// Search for tweets containing the term "hello"
-	char* term = "grift";
+	char* term = argv[1];
+	if(term == NULL){
+		printf("Please provide a search term\n");
+		return 1;
+	}
 
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
 	printf("Levenshtein fuzzy search...\n");
