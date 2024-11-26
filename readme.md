@@ -41,3 +41,9 @@ Tweet 1: "appel orange banana"
 ```
 
 The main goal of searching will be parsing all these data entries and accumulating inverse indices of the search term. The result of the searches will be an array of all tweets where the string appears. In terms of index size versus query efficiency, a longer query will result in a smaller index.
+
+## Running the project
+`fuzzy.c` includes all the fuzzy searching files.
+`test.c` includes the testing functionality.
+
+To run the program, first run the `make` command, which will make the `fuzzy_test` executable. Then you can run it using `./fuzzy_test`
