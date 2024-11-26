@@ -3,3 +3,4 @@ tweets.csv
 .DS_Store
 *.o
 *.exe
+fuzzy_test
