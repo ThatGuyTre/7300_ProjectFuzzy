@@ -54,11 +54,7 @@ int main() {
 	char **tweets = (char **)malloc(line_count * sizeof(char *));
 	loadTweets(tweets);
 
-	// Print out the first 10 elements of the tweets array
-    for (int i = 0; i < 10; i++) {
-        printf("%s", tweets[i]);
-    }
-
+	// Search for tweets containing the term "hello"
 	char* term = "hello";
 
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
@@ -69,6 +65,8 @@ int main() {
 	for (int i = 0; i < 10; i++) {
 		printf("%d: %s", i, tweets[indices[i]]);
 	}
+
+	// Do other random tests
 
 	const char *str1 = "kitten";
 	const char *str2 = "sitting";
