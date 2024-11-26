@@ -73,20 +73,20 @@ int main(int argc, char *argv[]) {
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
 	printf("Levenshtein fuzzy search...\n");
 	SearchResult levenResult = findTweetsWithTerm(tweets, term, levenFuzzy);
+	printf("Levenshtein search found %d tweets\n", levenResult.count);
 	printf("Hamming fuzzy search...\n");
 	SearchResult hammingResult = findTweetsWithTerm(tweets, term, hammingFuzzy);
+	printf("Hamming search found %d tweets\n", hammingResult.count);
 	printf("Bruteforce fuzzy search...\n");
 	SearchResult bruteForceResult = findTweetsWithTerm(tweets, term, bruteForceFuzzy);
-
-	// Print the number of tweets found for each search
-	printf("Levenshtein search found %d tweets\n", levenResult.count);
-	printf("Hamming search found %d tweets\n", hammingResult.count);
 	printf("Brute-force search found %d tweets\n", bruteForceResult.count);
 
-	printf("Tweets containing the term \"%s\":\n", term);
+	printf("\n");
+
 	// Output all array contents for each search result
 	// (Uncomment to print the tweet indices or tweet contents)
 	
+	printf("Tweets containing the term \"%s\":\n", term);
 	for (int i = 0; i < levenResult.count; i++) {
 		printf("Levenshtein match at index %d: %s\n", levenResult.indices[i], tweets[levenResult.indices[i]]);
 	}
