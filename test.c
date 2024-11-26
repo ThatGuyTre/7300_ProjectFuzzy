@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 	// Output all array contents for each search result
 	// (Uncomment to print the tweet indices or tweet contents)
 	
-	printf("Tweets containing the term \"%s\":\n", term);
+	// printf("Tweets containing the term \"%s\":\n", term);
 	// for (int i = 0; i < levenResult.count; i++) {
 	// 	printf("Levenshtein match at index %d: %s\n", levenResult.indices[i], tweets[levenResult.indices[i]]);
 	// }
