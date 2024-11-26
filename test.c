@@ -91,10 +91,22 @@ int main() {
 	for (int i = 0; i < bruteForceResult.count; i++) {
 		printf("Brute-force match at index %d: %s\n", bruteForceResult.indices[i], tweets[bruteForceResult.indices[i]]);
 	}
-	
 
-	// Do other random tests
+	// Free the allocated memory from tweets array
+	for (int i = 0; i < line_count; i++) {
+		free(tweets[i]);
+	}
+	free(tweets);
 
+	// Free the allocated memory for search results
+	free(levenResult.indices);
+	free(hammingResult.indices);
+	free(bruteForceResult.indices);
+
+	return 0;
+}
+
+void randomTests(){
 	const char *str1 = "kitten";
 	const char *str2 = "sitting";
 	const char *str3 = "fluffy";
@@ -119,17 +131,4 @@ int main() {
 	printf("Bruteforce match between \"%s\" and \"%s\": %d\n", str1, str2, bruteForceFuzzy(str1, str2));
 	printf("Bruteforce match between \"%s\" and \"%s\": %d\n", str1, str1, bruteForceFuzzy(str1, str1));
 	printf("Bruteforce match between \"%s\" and \"%s\": %d\n", str1, str6, bruteForceFuzzy(str1, str6));
-
-	// Free the allocated memory from tweets array
-	for (int i = 0; i < line_count; i++) {
-		free(tweets[i]);
-	}
-	free(tweets);
-
-	// Free the allocated memory for search results
-	free(levenResult.indices);
-	free(hammingResult.indices);
-	free(bruteForceResult.indices);
-
-	return 0;
 }
