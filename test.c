@@ -59,6 +59,8 @@ void loadTweets(char **tweets) {
 }
 
 int main(int argc, char *argv[]) {
+	atexit(cleanupDpArray);
+	
 	// Load array for the tweet text
 	char **tweets = (char **)malloc(line_count * sizeof(char *));
 	loadTweets(tweets);

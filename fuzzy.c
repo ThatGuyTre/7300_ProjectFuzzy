@@ -91,49 +91,77 @@ int hammingFuzzy(const char *pattern, const char *text)
 	return distance;
 }
 
-int levenFuzzy(const char *pattern, const char *text)
-{
+typedef struct {
+	int **dp;
+	int rows;
+	int cols;
+} DPArray;
+
+// Singleton instance for dp array
+static DPArray dpArray = {NULL, 0, 0};
+
+// Function to resize the dp array if needed
+void resizeDpArray(int rows, int cols) {
+	if (rows > dpArray.rows || cols > dpArray.cols) {
+		// Free existing dp array
+		if (dpArray.dp) {
+			for (int i = 0; i < dpArray.rows; i++) {
+				free(dpArray.dp[i]);
+			}
+			free(dpArray.dp);
+		}
+
+		// Allocate new dp array
+		dpArray.dp = (int **)malloc(rows * sizeof(int *));
+		for (int i = 0; i < rows; i++) {
+			dpArray.dp[i] = (int *)malloc(cols * sizeof(int));
+		}
+		dpArray.rows = rows;
+		dpArray.cols = cols;
+	}
+}
+
+// Cleanup function to free the dp array
+void cleanupDpArray() {
+	if (dpArray.dp) {
+		for (int i = 0; i < dpArray.rows; i++) {
+			free(dpArray.dp[i]);
+		}
+		free(dpArray.dp);
+		dpArray.dp = NULL;
+		dpArray.rows = 0;
+		dpArray.cols = 0;
+	}
+}
+
+// Levenshtein distance function
+int levenFuzzy(const char *pattern, const char *text) {
 	int patternLen = strlen(pattern);
 	int textLen = strlen(text);
 
-	// Dynamically allocate the 2D array
-	int **dp = (int **)malloc((patternLen + 1) * sizeof(int *));
-	for (int i = 0; i <= patternLen; i++)
-	{
-		dp[i] = (int *)malloc((textLen + 1) * sizeof(int));
-	}
+	// Ensure the dp array is large enough
+	resizeDpArray(patternLen + 1, textLen + 1);
 
 	// Initialize the base cases
-	for (int i = 0; i <= patternLen; i++)
-	{
-		dp[i][0] = i;
+	for (int i = 0; i <= patternLen; i++) {
+		dpArray.dp[i][0] = i;
 	}
-	for (int j = 0; j <= textLen; j++)
-	{
-		dp[0][j] = j;
+	for (int j = 0; j <= textLen; j++) {
+		dpArray.dp[0][j] = j;
 	}
 
 	// Fill the dp array using the Levenshtein algorithm
-	for (int i = 1; i <= patternLen; i++)
-	{
-		for (int j = 1; j <= textLen; j++)
-		{
+	for (int i = 1; i <= patternLen; i++) {
+		for (int j = 1; j <= textLen; j++) {
 			int cost = (pattern[i - 1] == text[j - 1]) ? 0 : 1;
-			dp[i][j] = fmin(dp[i - 1][j] + 1,				// Deletion
-							fmin(dp[i][j - 1] + 1,			// Insertion
-								 dp[i - 1][j - 1] + cost)); // Substitution
+			dpArray.dp[i][j] = fmin(dpArray.dp[i - 1][j] + 1,                  // Deletion
+									fmin(dpArray.dp[i][j - 1] + 1,             // Insertion
+										dpArray.dp[i - 1][j - 1] + cost));    // Substitution
 		}
 	}
 
 	// Store the result
-	int result = dp[patternLen][textLen];
-
-	// Free the allocated memory
-	for (int i = 0; i <= patternLen; i++)
-	{
-		free(dp[i]);
-	}
-	free(dp);
+	int result = dpArray.dp[patternLen][textLen];
 
 	return result;
 }

@@ -17,4 +17,6 @@ int hammingFuzzy(const char *pattern, const char *text);
 // Levenshtein distance-based fuzzy search
 int levenFuzzy(const char *pattern, const char *text);
 
+void cleanupDpArray();
+
 #endif
