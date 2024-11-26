@@ -7,10 +7,9 @@ with open('training.1600000.processed.noemoticon.csv', 'r') as file:
 	i = 0
 	for row in reader:
 		# This is the data we want to save
-		# tweet number, username, post content
+		# Just the post content, line number is extractable
 		# Cannot use the timestamp because there are duplicates
-		data = i, row[4], row[5]
-		# print(data)
+		data = [row[5]]
 		# Save dato to a new CSV file
 		with open('tweets.csv', 'a') as newfile:
 			writer = csv.writer(newfile)
