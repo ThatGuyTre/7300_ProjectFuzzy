@@ -18,6 +18,11 @@ int bruteForceFuzzy(const char *pattern, const char *text)
 	size_t patternLen = strlen(pattern);
 	size_t textLen = strlen(text);
 
+	if(patternLen > textLen)
+	{
+		return -1; // Pattern longer than text
+	}
+
 	for (size_t i = 0; i <= textLen - patternLen; i++)
 	{
 		size_t j = 0;

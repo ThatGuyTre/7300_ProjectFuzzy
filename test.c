@@ -3,27 +3,37 @@
 
 #define line_count 1600000
 
-int* findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuzzyFunction)(const char *, const char *)) {
-	int *tweetIndices = (int *)malloc(line_count * sizeof(int));
-	if (tweetIndices == NULL) {
+// Struct to store tweet indices and count
+typedef struct {
+	int *indices;
+	int count;
+} SearchResult;
+
+// Modify the findTweetsWithTerm function to return SearchResult
+SearchResult findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuzzyFunction)(const char *, const char *)) {
+	SearchResult result;
+	result.indices = (int *)malloc(line_count * sizeof(int));
+	if (result.indices == NULL) {
 		perror("Memory allocation failed for tweetIndices");
-		return NULL;
+		result.count = 0;
+		return result;
 	}
 
 	int count = 0;
 	for (int i = 0; i < line_count; i++) {
 		if (sentenceSearch(tweets[i], searchTerm, fuzzyFunction) > 0) {
-			tweetIndices[count] = i;
+			result.indices[count] = i;
 			count++;
 		}
 	}
 
-	tweetIndices = (int *)realloc(tweetIndices, count * sizeof(int));
-	return tweetIndices;
+	// Reallocate memory to fit the number of valid results
+	result.indices = (int *)realloc(result.indices, count * sizeof(int));
+	result.count = count;
+	return result;
 }
 
-void loadTweets(char **tweets){
-
+void loadTweets(char **tweets) {
 	// Load in the tweets.csv file
 	FILE *fp = fopen("tweets.csv", "r");
 	if (fp == NULL) {
@@ -32,39 +42,56 @@ void loadTweets(char **tweets){
 	}
 
 	// Read each line of the file and store it in the tweets array
-    char line[1024];
-    int index = 0;
-    while (fgets(line, sizeof(line), fp) && index < line_count) {
-        // Allocate memory for each tweet text
-        tweets[index] = (char *)malloc(strlen(line) + 1);
-        if (tweets[index] == NULL) {
-            printf("Memory allocation failed for tweet %d\n", index);
-            return;
-        }
-        strcpy(tweets[index], line); // Copy the line into the array
-        index++;
-    }
+	char line[1024];
+	int index = 0;
+	while (fgets(line, sizeof(line), fp) && index < line_count) {
+		// Allocate memory for each tweet text
+		tweets[index] = (char *)malloc(strlen(line) + 1);
+		if (tweets[index] == NULL) {
+			printf("Memory allocation failed for tweet %d\n", index);
+			return;
+		}
+		strcpy(tweets[index], line); // Copy the line into the array
+		index++;
+	}
 	fclose(fp);
-
 }
 
 int main() {
-
 	// Load array for the tweet text
 	char **tweets = (char **)malloc(line_count * sizeof(char *));
 	loadTweets(tweets);
 
 	// Search for tweets containing the term "hello"
-	char* term = "hello";
+	char* term = "grift";
 
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
+	printf("Levenshtein fuzzy search...\n");
+	SearchResult levenResult = findTweetsWithTerm(tweets, term, levenFuzzy);
+	printf("Hamming fuzzy search...\n");
+	SearchResult hammingResult = findTweetsWithTerm(tweets, term, hammingFuzzy);
+	printf("Bruteforce fuzzy search...\n");
+	SearchResult bruteForceResult = findTweetsWithTerm(tweets, term, bruteForceFuzzy);
 
-	int* indices = findTweetsWithTerm(tweets, term, levenFuzzy);
+	// Print the number of tweets found for each search
+	printf("Levenshtein search found %d tweets\n", levenResult.count);
+	printf("Hamming search found %d tweets\n", hammingResult.count);
+	printf("Brute-force search found %d tweets\n", bruteForceResult.count);
 
 	printf("Tweets containing the term \"%s\":\n", term);
-	for (int i = 0; i < 10; i++) {
-		printf("%d: %s", i, tweets[indices[i]]);
+	// Output all array contents for each search result
+	// (Uncomment to print the tweet indices or tweet contents)
+	
+	for (int i = 0; i < levenResult.count; i++) {
+		printf("Levenshtein match at index %d: %s\n", levenResult.indices[i], tweets[levenResult.indices[i]]);
 	}
+	for (int i = 0; i < hammingResult.count; i++) {
+		printf("Hamming match at index %d: %s\n", hammingResult.indices[i], tweets[hammingResult.indices[i]]);
+	}
+	for (int i = 0; i < bruteForceResult.count; i++) {
+		printf("Brute-force match at index %d: %s\n", bruteForceResult.indices[i], tweets[bruteForceResult.indices[i]]);
+	}
+	
 
 	// Do other random tests
 
@@ -94,10 +121,15 @@ int main() {
 	printf("Bruteforce match between \"%s\" and \"%s\": %d\n", str1, str6, bruteForceFuzzy(str1, str6));
 
 	// Free the allocated memory from tweets array
-    for (int i = 0; i < line_count; i++) {
-        free(tweets[i]);
-    }
-    free(tweets);
+	for (int i = 0; i < line_count; i++) {
+		free(tweets[i]);
+	}
+	free(tweets);
+
+	// Free the allocated memory for search results
+	free(levenResult.indices);
+	free(hammingResult.indices);
+	free(bruteForceResult.indices);
 
 	return 0;
 }
