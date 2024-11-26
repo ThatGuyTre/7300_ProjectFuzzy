@@ -2,3 +2,4 @@ training.1600000.processed.noemoticon.csv
 tweets.csv
 .DS_Store
 *.o
+*.exe
