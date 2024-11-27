@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-char* custom_strdup(const char* s);
-
 // Brute-force fuzzy search
 int bruteForceFuzzy(const char *pattern, const char *text);
 
