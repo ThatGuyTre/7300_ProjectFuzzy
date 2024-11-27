@@ -33,7 +33,7 @@ int bruteForceFuzzy(const char *pattern, const char *text)
 		char *clonedPattern = (char *)malloc(strlen(pattern) + 1); // Allocate memory
 		if (clonedPattern == NULL) {
 			printf("Memory allocation failed");
-			return 1; // Handle memory allocation failure
+			return -1; // Handle memory allocation failure
 		}
 		strcpy(clonedPattern, pattern);
 
