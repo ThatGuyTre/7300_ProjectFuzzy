@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 // Function to count the number of fuzzy matches for a search term in a sentence
-int sentenceSearch(const char *sentence, const char *searchTerm, int (*fuzzyFunction)(const char *, const char *)) {
+int sentenceSearch(const char *sentence, const char *searchTerm, int threshold, int (*fuzzyFunction)(const char *, const char *)) {
     char *sentenceCopy = strdup(sentence);
     if (sentenceCopy == NULL) {
         perror("Failed to duplicate sentence");
@@ -18,7 +18,6 @@ int sentenceSearch(const char *sentence, const char *searchTerm, int (*fuzzyFunc
     char *token = strtok(sentenceCopy, delimiters);
     while (token != NULL) {
         // Use the passed fuzzy function to compare the search term with the word
-        int threshold = 1; // Threshold for distance-based match
         if (fuzzyFunction == bruteForceFuzzy) {
             threshold = 0;
         }
