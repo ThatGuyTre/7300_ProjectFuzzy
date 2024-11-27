@@ -11,7 +11,7 @@ typedef struct {
 } SearchResult;
 
 // Modify the findTweetsWithTerm function to return SearchResult
-SearchResult findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuzzyFunction)(const char *, const char *)) {
+SearchResult findTweetsWithTerm(char **tweets, const char *searchTerm, int threshold, int (*fuzzyFunction)(const char *, const char *)) {
 	SearchResult result;
 	result.indices = (int *)malloc(line_count * sizeof(int));
 	if (result.indices == NULL) {
@@ -23,7 +23,7 @@ SearchResult findTweetsWithTerm(char **tweets, const char *searchTerm, int (*fuz
 	int count = 0;
 	for (int i = 0; i < line_count; i++) {
 		// If you have found more than 0 matches, store the index in the result
-		if (sentenceSearch(tweets[i], searchTerm, fuzzyFunction) > 0) {
+		if (sentenceSearch(tweets[i], searchTerm, threshold, fuzzyFunction) > 0) {
 			result.indices[count] = i;
 			count++;
 		}
@@ -74,35 +74,46 @@ int main(int argc, char *argv[]) {
 	}
 
 	clock_t start, end;
-	double levenschteinTime, hammingTime, bruteForceTime;
+	double levenTime, hammingTime, bruteTime;
+	const int threshold = 1, thresholdExtra = 2;
 
 	printf("Searching for tweets containing the term \"%s\"...\n", term);
+
+	// Levenshtein search with threshold 1
 	printf("Levenshtein fuzzy search...\n");
 	start = clock();
-	SearchResult levenResult = findTweetsWithTerm(tweets, term, levenFuzzy);
+	SearchResult levenResult = findTweetsWithTerm(tweets, term, threshold, levenFuzzy);
 	end = clock();
-	levenschteinTime = ((double) (end - start)) / CLOCKS_PER_SEC;
-	printf("Levenshtein search found %d tweets\n", levenResult.count);
+	levenTime = ((double) (end - start)) / CLOCKS_PER_SEC;
+	printf("Levenshtein search found: %d\n", levenResult.count);
+	printf("Time taken for Levenshtein search: %f seconds\n", levenTime);
+	// Levenshtein search with threshold 2
+	SearchResult levenResultExtra = findTweetsWithTerm(tweets, term, thresholdExtra, levenFuzzy);
+	printf("Levenshtein expanded search found: %d\n", levenResultExtra.count);
+	printf("\n");
 	
+	// Hamming search with threshold 1
 	printf("Hamming fuzzy search...\n");
 	start = clock();
-	SearchResult hammingResult = findTweetsWithTerm(tweets, term, hammingFuzzy);
+	SearchResult hammingResult = findTweetsWithTerm(tweets, term, threshold, hammingFuzzy);
 	end = clock();
 	hammingTime = ((double) (end - start)) / CLOCKS_PER_SEC;
-	printf("Hamming search found %d tweets\n", hammingResult.count);
-
-	printf("Bruteforce fuzzy search...\n");
-	start = clock();
-	SearchResult bruteForceResult = findTweetsWithTerm(tweets, term, bruteForceFuzzy);
-	end = clock();
-	bruteForceTime = ((double) (end - start)) / CLOCKS_PER_SEC;
-	printf("Brute-force search found %d tweets\n", bruteForceResult.count);
-
+	printf("Hamming search found %d\n", hammingResult.count);
+	printf("Time taken for Hamming search: %f seconds\n", hammingTime);
+	// Hamming search with threshold 2
+	SearchResult hammingResultExtra = findTweetsWithTerm(tweets, term, thresholdExtra, hammingFuzzy);
+	printf("Hamming expanded search found %d\n", hammingResultExtra.count);
 	printf("\n");
 
-	printf("Time taken for Levenshtein search: %f seconds\n", levenschteinTime);
-	printf("Time taken for Hamming search: %f seconds\n", hammingTime);
-	printf("Time taken for Bruteforce search: %f seconds\n", bruteForceTime);
+	// Bruteforce search (threshold doesn't matter)
+	printf("Bruteforce fuzzy search...\n");
+	start = clock();
+	SearchResult bruteForceResult = findTweetsWithTerm(tweets, term, threshold, bruteForceFuzzy);
+	end = clock();
+	bruteTime = ((double) (end - start)) / CLOCKS_PER_SEC;
+	printf("Brute-force search found %d tweets\n", bruteForceResult.count);
+	printf("Time taken for Bruteforce search: %f seconds\n", bruteTime);
+	printf("\n");
 
 	// Output all array contents for each search result
 	// (Uncomment to print the tweet indices or tweet contents)
