@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct SuffixTreeNode {
-	struct SuffixTreeNode *children[256]; // Assuming ASCII characters
+	struct SuffixTreeNode *children[256];
 	int start;
 	int *end;
 	struct SuffixTreeNode *suffixLink;
