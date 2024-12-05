@@ -61,6 +61,10 @@ void loadTweets(char **tweets) {
 
 int main(int argc, char *argv[]) {
 	atexit(cleanupDpArray);
+
+	bruteForceCyclicFuzzy("bac", "abcaba$");
+
+	return 0;
 	
 	// Load array for the tweet text
 	char **tweets = (char **)malloc(line_count * sizeof(char *));

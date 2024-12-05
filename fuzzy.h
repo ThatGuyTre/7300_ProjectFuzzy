@@ -9,6 +9,9 @@
 // Brute-force fuzzy search
 int bruteForceFuzzy(const char *pattern, const char *text);
 
+// Brute-force cyclic
+int bruteForceCyclicFuzzy(const char *pattern, const char *text);
+
 // Hamming distance-based fuzzy search
 int hammingFuzzy(const char *pattern, const char *text);
 

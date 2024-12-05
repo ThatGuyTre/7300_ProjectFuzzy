@@ -1,4 +1,5 @@
 #include "fuzzy.h"
+#include "suffixtree.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -67,6 +68,83 @@ int bruteForceFuzzy(const char *pattern, const char *text)
 
 		free(clonedPattern); // Free the duplicated string after use
 	}
+	return -1; // No match found
+}
+
+int bruteForceCyclicFuzzy(const char* query, const char* tweet){
+	/*
+		You can indeed create an index by taking all cyclic suffixes of each word and create a suffix tree. Now, for the query word, take all its cyclic permutations and search each of these m strings in the circular suffix tree. Thus, you will no longer be going word by word.
+ 
+		For example, if query word is abcaba$, then for each position omitted our cyclic suffixes are
+		bcaba$
+		caba$a
+		aba$ab
+		ba$abc
+		a$abca
+		$abcab
+		
+		$ is just for you to see what’s happening, in the real index omit $.
+		
+		What we achieved here is that we circularly pushed the error character to the end of the string and then omitted it.
+	*/
+
+	size_t patternLen = strlen(query);
+	size_t textLen = strlen(tweet);
+
+	// Create cyclic suffixes of the tweet
+	char **cyclicSuffixes = (char **)malloc(textLen * sizeof(char *));
+	for (size_t i = 0; i < textLen; i++) {
+		cyclicSuffixes[i] = (char *)malloc((textLen + 1) * sizeof(char));
+		for (size_t j = 0; j < textLen; j++) {
+			cyclicSuffixes[i][j] = tweet[(i + j) % textLen];
+		}
+		cyclicSuffixes[i][textLen] = '\0';
+	}
+
+	// Build the suffix tree for the cyclic suffixes
+	SuffixTreeNode *suffixTreeRoot = buildSuffixTree(tweet);
+
+	// Print the traversal of the suffix tree
+	printf("Traversal of the suffix tree:\n");
+	printSuffixTree(suffixTreeRoot, tweet);
+
+	if (patternLen > textLen) {
+		return -1; // Pattern longer than text
+	}
+
+	// Create cyclic permutations of the pattern
+	char **cyclicPermutations = (char **)malloc(patternLen * sizeof(char *));
+	for (size_t i = 0; i < patternLen; i++) {
+		cyclicPermutations[i] = (char *)malloc((patternLen + 1) * sizeof(char));
+		for (size_t j = 0; j < patternLen; j++) {
+			cyclicPermutations[i][j] = query[(i + j) % patternLen];
+		}
+		cyclicPermutations[i][patternLen] = '\0';
+	}
+
+	// Search for each cyclic permutation in the text
+	for (size_t k = 0; k < patternLen; k++) {
+		for (size_t i = 0; i <= textLen - patternLen; i++) {
+			size_t j = 0;
+			while (j < patternLen && cyclicPermutations[k][j] == tweet[i + j]) {
+				j++;
+			}
+			if (j == patternLen) {
+				for (size_t l = 0; l < patternLen; l++) {
+					free(cyclicPermutations[l]);
+				}
+				free(cyclicPermutations);
+				return i; // Match found at position i
+			}
+		}
+	}
+
+	// Free allocated memory
+	for (size_t i = 0; i < patternLen; i++) {
+		free(cyclicPermutations[i]);
+	}
+	free(cyclicPermutations);
+
 	return -1; // No match found
 }
 
