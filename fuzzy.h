@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <math.h>
 
+// Generate cyclic permutations of a pattern
+char** generateCyclicPermutations(const char* pattern, int* count);
+
 // Brute-force fuzzy search
 int bruteForceFuzzy(const char *pattern, const char *text);
 
