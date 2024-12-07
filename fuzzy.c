@@ -75,20 +75,28 @@ int hammingFuzzy(const char *pattern, const char *text)
 	size_t patternLen = strlen(pattern);
 	size_t textLen = strlen(text);
 
-	if (patternLen != textLen)
+	if (patternLen > textLen)
 	{
-		return -1; // Length mismatch
+		return -1; // pattern longer than text
 	}
 
-	int distance = 0;
-	for (size_t i = 0; i < patternLen; i++)
+	int minDistance = patternLen + 1;
+	//slides pattern 'window' over sentence.
+	for (size_t i = 0; i < textLen - patternLen; i++)
 	{
-		if (pattern[i] != text[i])
-		{
-			distance++;
+		for (size_t i = 0; i <= textLen - patternLen; i++) {
+			int distance = 0;
+			for (size_t j = 0; j < patternLen; j++) {
+				if(pattern[j] != text[i + j]) {
+					distance++;
+				}
+			}
+			if (distance < minDistance) {
+				minDistance = distance;
+			}
 		}
 	}
-	return distance;
+	return minDistance <= patternLen ? minDistance : -1;
 }
 
 typedef struct {
@@ -139,29 +147,40 @@ int levenFuzzy(const char *pattern, const char *text) {
 	int patternLen = strlen(pattern);
 	int textLen = strlen(text);
 
+	if (patternLen > textLen) {
+        return -1; // Pattern longer than text
+    }
+
+	int minDistance = patternLen + 1;
+
 	// Ensure the dp array is large enough
-	resizeDpArray(patternLen + 1, textLen + 1);
+	for (int start = 0; start <= textLen - patternLen; start++) {
+		resizeDpArray(patternLen + 1, textLen + 1);
+		//printf("Comparing pattern: '%s' with substring: '%.*s'\n", pattern, patternLen, &text[start]);
 
-	// Initialize the base cases
-	for (int i = 0; i <= patternLen; i++) {
-		dpArray.dp[i][0] = i;
-	}
-	for (int j = 0; j <= textLen; j++) {
-		dpArray.dp[0][j] = j;
-	}
+		// Initialize the base cases
+		for (int i = 0; i <= patternLen; i++) {
+			dpArray.dp[i][0] = i;
+		}
+		for (int j = 0; j <= patternLen; j++) {
+			dpArray.dp[0][j] = j;
+		}
 
-	// Fill the dp array using the Levenshtein algorithm
-	for (int i = 1; i <= patternLen; i++) {
-		for (int j = 1; j <= textLen; j++) {
-			int cost = (pattern[i - 1] == text[j - 1]) ? 0 : 1;
-			dpArray.dp[i][j] = fmin(dpArray.dp[i - 1][j] + 1,                  // Deletion
+		// Fill the dp array using the Levenshtein algorithm
+		for (int i = 1; i <= patternLen; i++) {
+			for (int j = 1; j <= patternLen; j++) {
+				int cost = (pattern[i - 1] == text[start + j - 1]) ? 0 : 1;
+				dpArray.dp[i][j] = fmin(dpArray.dp[i - 1][j] + 1,               // Deletion
 									fmin(dpArray.dp[i][j - 1] + 1,             // Insertion
 										dpArray.dp[i - 1][j - 1] + cost));    // Substitution
+			}
+		}
+
+		int distance = dpArray.dp[patternLen][patternLen];
+		if (distance < minDistance) {
+			minDistance = distance;
 		}
 	}
 
-	// Store the result
-	int result = dpArray.dp[patternLen][textLen];
-
-	return result;
+	return minDistance;
 }
